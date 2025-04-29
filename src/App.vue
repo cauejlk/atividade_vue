@@ -57,6 +57,7 @@ const books = [
     id: 7,
   },
 ]
+
 </script>
 
 <template>
@@ -65,14 +66,14 @@ const books = [
       <ul>
         <li id="logo">IFbooks</li>
         <li id="logo1">Apreço a leitura</li>
-        <li id="pesquisar">Pesquisar</li>
+        <li id="pesquisar">Pesquisar <span class="fa-solid fa-magnifying-glass"></span></li>
         <li>Termos</li>
         <li>Equipe</li>
         <li>Envio</li>
         <li>Devolução</li>
-        <li class="icon">Carrinho</li>
-        <li class="icon">Curtidos</li>
-        <li class="icon">Perfil</li>
+        <li class="icon"><span class="fa-solid fa-cart-shopping"></span></li>
+        <li class="icon" id="mid"><span class="fa-solid fa-heart"></span></li>
+        <li class="icon"><span class="fa-solid fa-user"></span></li>
       </ul>
     </nav>
   </header>
@@ -109,7 +110,7 @@ const books = [
           <h4>{{ book.titulo }}</h4>
           <p id="autor">{{ book.autor }}</p>
           <p id="preco">R$ {{ book.preco }} <span class="fa-regular fa-heart"></span></p>
-          <button><span class="fa-solid fa-cart-shopping"></span> Comprar</button>
+          <button v-on:click="adicionarAoCarrinho()"><span class="fa-solid fa-cart-shopping"></span> Comprar</button>
         </div>
       </div>
     </section>
@@ -122,6 +123,7 @@ const books = [
   padding: 0;
 }
 header {
+  padding: 2vw 3vw;
   border-bottom: solid #27ae60 2px;
 }
 header nav ul {
@@ -131,10 +133,46 @@ header nav ul {
 header li {
   list-style: none;
   color: #7b7881;
+  margin: 0 2vw;
+  padding: 10px;
 }
 
 header li#logo {
   font-size: 1.3rem;
+  color: black;
+  padding: 0 5px 0 0;
+  border-right: #27ae60 solid 1.5px;
+  margin: 0;
+}
+
+header li#logo1 {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #27ae60;
+  margin: 0;
+}
+
+header li#pesquisar{
+  background-color: #F1F1F1;
+  color: #B8B8B8;
+  padding: 10px 13px;
+  font-size: 1.1rem;
+}
+
+header li#pesquisar span{
+  color: #7b7881;
+  margin: 0 0 0 15vw;
+}
+
+header .icon{
+  color: #27ae60;
+  padding: 10px 1vw;
+  margin: 0 0;
+  font-size: 1.2rem;
+}
+
+header li#mid{
+  border-left: #27ae60 solid 1px;
+  border-right: #27ae60 solid 1px;
 }
 
 .autorDoMes {
@@ -223,11 +261,11 @@ header li#logo {
 
 .lancamentos #books .book img{
   width: auto;
-  height: 500px;
+  height: 450px;
 }
 
 .lancamentos #books .book h4{
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   padding: 20px 0;
 }
 
@@ -237,7 +275,7 @@ header li#logo {
 }
 
 .lancamentos #books .book #preco{
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   margin: 0 0 10px 0;
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -252,19 +290,8 @@ header li#logo {
   color: white;
   font-size: 1.2rem;
   justify-content: center;
-  padding: .7vw 5vw;
+  padding: .7vw 6vw;
+  border-radius: 3px;
 }
-/*<section class="lancamentos">
-      <h3>Lançamentos</h3>
-      <div class="books">
-        <div v-for="book of books" :key="book.id" >
-          <img :src="book.capa" alt="capa do livro" style="max-height: 350px" />
-          <h4>{{ book.titulo }}</h4>
-          <p>{{ book.autor }}</p>
-          <p>R${{ book.preco }}</p>
-          <button>Comprar</button>
-        </div>
-      </div>
-    </section>
-    */
+
 </style>
