@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 const books = [
   {
     capa: 'https://m.media-amazon.com/images/I/511XKyPf9-L._AC_UF1000,1000_QL80_.jpg',
@@ -58,6 +59,19 @@ const books = [
   },
 ]
 
+const carrinho = ref([{
+    capa: 'https://m.media-amazon.com/images/I/81ccIcOmAoL._SL1500_.jpg',
+    titulo: 'O mito de Sísifo',
+    autor: 'Albert Camus',
+    preco: '41,87',
+    id: 7,
+  },])
+
+const homePage = ref(true)
+
+function adicionarAoCarrinho(livro) {
+  carrinho.value.push(livro)
+}
 </script>
 
 <template>
@@ -71,14 +85,16 @@ const books = [
         <li>Equipe</li>
         <li>Envio</li>
         <li>Devolução</li>
-        <li class="icon"><span class="fa-solid fa-cart-shopping"></span></li>
+        <li class="icon" @click="homePage = !homePage">
+          <span class="fa-solid fa-cart-shopping"></span>
+        </li>
         <li class="icon" id="mid"><span class="fa-solid fa-heart"></span></li>
         <li class="icon"><span class="fa-solid fa-user"></span></li>
       </ul>
     </nav>
   </header>
 
-  <main>
+  <main v-if="homePage">
     <section class="autorDoMes">
       <div class="sobreAutor">
         <p>Autor de Abril</p>
@@ -106,11 +122,32 @@ const books = [
       <h3>Lançamentos</h3>
       <div id="books">
         <div v-for="book of books" :key="book.id" class="book">
-          <img :src="book.capa" alt="capa do livro"/>
+          <img :src="book.capa" alt="capa do livro" />
           <h4>{{ book.titulo }}</h4>
           <p id="autor">{{ book.autor }}</p>
           <p id="preco">R$ {{ book.preco }} <span class="fa-regular fa-heart"></span></p>
-          <button v-on:click="adicionarAoCarrinho()"><span class="fa-solid fa-cart-shopping"></span> Comprar</button>
+          <button v-on:click="adicionarAoCarrinho(book)">
+            <span class="fa-solid fa-cart-shopping"></span> Comprar
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main v-else class="carrinho">
+    <h1>Carrinho</h1>
+    <section>
+      <ul>
+        <li>Título</li>
+        <li>Quantidade</li>
+        <li>Subtotal</li>
+      </ul>
+      <div v-for="livro of carrinho" :key="livro.id" class="livro">
+        <img :src="livro.capa" alt="capa do livro" />
+        <div>
+          <h4>{{ livro.titulo }}</h4>
+          <p>{{ livro.autor }}</p>
+          <p>R$ {{ livro.preco }}</p>
         </div>
       </div>
     </section>
@@ -151,26 +188,27 @@ header li#logo1 {
   margin: 0;
 }
 
-header li#pesquisar{
-  background-color: #F1F1F1;
-  color: #B8B8B8;
+header li#pesquisar {
+  background-color: #f1f1f1;
+  color: #b8b8b8;
   padding: 10px 13px;
   font-size: 1.1rem;
 }
 
-header li#pesquisar span{
+header li#pesquisar span {
   color: #7b7881;
   margin: 0 0 0 15vw;
 }
 
-header .icon{
+header .icon {
   color: #27ae60;
   padding: 10px 1vw;
   margin: 0 0;
   font-size: 1.2rem;
+  cursor: pointer;
 }
 
-header li#mid{
+header li#mid {
   border-left: #27ae60 solid 1px;
   border-right: #27ae60 solid 1px;
 }
@@ -259,39 +297,92 @@ header li#mid{
   margin: 3vw 2vw;
 }
 
-.lancamentos #books .book img{
+.lancamentos #books .book img {
   width: auto;
   height: 450px;
 }
 
-.lancamentos #books .book h4{
+.lancamentos #books .book h4 {
   font-size: 1.3rem;
   padding: 20px 0;
 }
 
-.lancamentos #books .book #autor{
-  color: #4F4C57;
+.lancamentos #books .book #autor {
+  color: #4f4c57;
   padding-bottom: 10px;
 }
 
-.lancamentos #books .book #preco{
+.lancamentos #books .book #preco {
   font-size: 1.4rem;
   margin: 0 0 10px 0;
   font-family: Arial, Helvetica, sans-serif;
 }
-.lancamentos #books .book #preco span{
+.lancamentos #books .book #preco span {
   color: #27ae60;
   margin-left: 10vw;
 }
 
-.lancamentos #books .book button{
+.lancamentos #books .book button {
   border: none;
   background-color: #27ae60;
   color: white;
   font-size: 1.2rem;
   justify-content: center;
-  padding: .7vw 6vw;
+  padding: 0.7vw 6vw;
   border-radius: 3px;
+  cursor: pointer;
 }
 
+.carrinho h1 {
+  margin: 2vw 0 0 10vw;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.carrinho ul {
+  display: flex;
+  list-style: none;
+  font-family: Arial, Helvetica, sans-serif;
+  justify-content: space-between;
+  border-bottom: #27ae60 2px solid;
+}
+
+.carrinho ul li{
+  font-size: 1.3rem;
+  padding: 5vw 10vw 1vw 10vw;
+}
+
+.carrinho .livro {
+  display: flex;
+  margin: 1vw 9vw;
+}
+.carrinho .livro img {
+  width: auto;
+  height: 220px;
+  margin: 0 30px 0 0;
+}
+
+.carrinho .livro h4{
+  font-size: 1.3rem;
+  margin: 0 0 20px 0;
+}
+
+.carrinho .livro
+/*<main v-else>
+    <h1>Carrinho</h1>
+    <section>
+      <ul>
+        <li>Título</li>
+        <li>Quantidade</li>
+        <li>Subtotal</li>
+      </ul>
+      <div v-for="livro of carrinho" :key="livro.id" class="livro">
+        <img :src="livro.capa" alt="capa do livro" style="height: 200px" />
+        <div>
+          <h4>{{ livro.titulo }}</h4>
+          <p>{{ livro.autor }}</p>
+          <p>R$ {{ livro.preco }}</p>
+        </div>
+      </div>
+    </section>
+  </main>*/
 </style>
