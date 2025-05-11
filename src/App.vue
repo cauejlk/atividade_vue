@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 const books = [
   {
     capa: 'https://m.media-amazon.com/images/I/511XKyPf9-L._AC_UF1000,1000_QL80_.jpg',
@@ -7,6 +7,7 @@ const books = [
     autor: 'Roberto Tranjan',
     preco: '37.00',
     id: 0,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/81TmOZIXvzL._SL1500_.jpg',
@@ -14,6 +15,7 @@ const books = [
     autor: 'Antoine de Saint-Exupéry',
     preco: '15.35',
     id: 1,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/715JOcuqSSL._SL1021_.jpg',
@@ -21,6 +23,7 @@ const books = [
     autor: 'Franz Kafka ',
     preco: '15.00',
     id: 2,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/7143D7foVmL._SL1500_.jpg',
@@ -28,6 +31,7 @@ const books = [
     autor: 'Fiódor Dostoiévski ',
     preco: '31.80',
     id: 3,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/71yTTLMgq8L._SL1360_.jpg',
@@ -35,6 +39,7 @@ const books = [
     autor: 'William Shakespeare',
     preco: '12.30',
     id: 4,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/618-b9Im6dL._SL1457_.jpg',
@@ -42,6 +47,7 @@ const books = [
     autor: 'Graciliano Ramos',
     preco: '16.08',
     id: 5,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/81sblL-t2iL._SL1417_.jpg',
@@ -49,29 +55,58 @@ const books = [
     autor: 'Osamu Dazai',
     preco: '44.12',
     id: 6,
+    quantidade: 0
   },
   {
     capa: 'https://m.media-amazon.com/images/I/81ccIcOmAoL._SL1500_.jpg',
     titulo: 'O mito de Sísifo',
     autor: 'Albert Camus',
-    preco: '41,87',
+    preco: '41.87',
     id: 7,
+    quantidade: 0
   },
 ]
 
+
 const carrinho = ref([{
-    capa: 'https://m.media-amazon.com/images/I/81ccIcOmAoL._SL1500_.jpg',
-    titulo: 'O mito de Sísifo',
-    autor: 'Albert Camus',
-    preco: '41,87',
-    id: 7,
-  },])
+  capa: 'https://m.media-amazon.com/images/I/81ccIcOmAoL._SL1500_.jpg',
+  titulo: 'O mito de Sísifo',
+  autor: 'Albert Camus',
+  preco: '41.87',
+  id: 7,
+  quantidade: 0
+},])
 
 const homePage = ref(true)
 
-function adicionarAoCarrinho(livro) {
-  carrinho.value.push(livro)
+function adicionarAoCarrinho(book) {
+  const itemExistente = carrinho.value.find(item => item.id === book.id)
+
+  if (itemExistente) {
+    itemExistente.quantidade++
+  } else {
+    carrinho.value.push({
+      ...book,
+      quantidade: 1
+    })
+  }
 }
+
+function diminuirQuantidade(livro) {
+  livro.quantidade--
+  if (livro.quantidade <= 0) {
+    carrinho.value = carrinho.value.filter(item => item.id !== livro.id)
+  }
+}
+
+const cupom = ref('')
+const frete = 0
+
+const totalDoProdutos = computed(() => {
+  return carrinho.value.reduce((total, item) => {
+    return total + (parseFloat(item.preco) * item.quantidade)
+  }, 0)
+})
 </script>
 
 <template>
@@ -101,7 +136,7 @@ function adicionarAoCarrinho(livro) {
         <h1>Eric-Emanuel Schmitt</h1>
         <p>
           Eric-Emmanuel Schmitt has been awarded more than 20 literary prizes and distinctions, and
-          in 2001 he received the title of Chevalier des Arts et des Lettres. His books have been
+          in 2001 he received the title of Chevalier des Arts et des Letres. His books have been
           translated into over 40 languages.
         </p>
         <button>Acessar página do livro</button>
@@ -125,8 +160,8 @@ function adicionarAoCarrinho(livro) {
           <img :src="book.capa" alt="capa do livro" />
           <h4>{{ book.titulo }}</h4>
           <p id="autor">{{ book.autor }}</p>
-          <p id="preco">R$ {{ book.preco }} <span class="fa-regular fa-heart"></span></p>
-          <button v-on:click="adicionarAoCarrinho(book)">
+          <p id="preco">R$ {{ book.preco.replace('.', ',') }} <span class="fa-regular fa-heart"></span></p>
+          <button @click="adicionarAoCarrinho(book)">
             <span class="fa-solid fa-cart-shopping"></span> Comprar
           </button>
         </div>
@@ -135,8 +170,8 @@ function adicionarAoCarrinho(livro) {
   </main>
 
   <main v-else class="carrinho">
-    <h1>Carrinho</h1>
-    <section>
+    <section v-if="carrinho.length !== 0" id="carrinho">
+      <h1>Carrinho</h1>
       <ul>
         <li>Título</li>
         <li>Quantidade</li>
@@ -144,11 +179,44 @@ function adicionarAoCarrinho(livro) {
       </ul>
       <div v-for="livro of carrinho" :key="livro.id" class="livro">
         <img :src="livro.capa" alt="capa do livro" />
-        <div>
+        <div id="titulo">
           <h4>{{ livro.titulo }}</h4>
           <p>{{ livro.autor }}</p>
-          <p>R$ {{ livro.preco }}</p>
+          <p>R$ {{ livro.preco.replace('.', ',') }}</p>
         </div>
+        <div id="quantidade">
+          <h5><span @click="livro.quantidade++">+</span> {{ livro.quantidade }} <span
+              @click="diminuirQuantidade(livro)">-</span></h5>
+        </div>
+        <div id="subtotal">
+          <h5>R$ {{ (parseFloat(livro.preco) * livro.quantidade).toFixed(2).replace('.', ',') }}</h5>
+        </div>
+      </div>
+    </section>
+    <section v-else id="carrinhoVazio">
+      <h1>Carrinho está vazio</h1>
+    </section>
+    <button @click="homePage = !homePage" class="voltarLoja">Voltar para a loja</button>
+    <section class="finalizarCompra" v-if="carrinho.length !== 0">
+      <div id="cupom">
+        <input type="text" v-model="cupom" placeholder="Código do cupom">
+        <button>Inserir Cupom</button>
+      </div>
+      <div id="totalCompras">
+        <h3>Total da Comprar</h3>
+        <div id="list">
+          <div>
+            <p>Produtos:</p>
+            <p>Frete:</p>
+            <p>Total:</p>
+          </div>
+          <div>
+            <p>R$ {{ totalDoProdutos.toFixed(2).replace("." , ",")}}</p>
+            <p>Grátis</p>
+            <p>R$ {{ (totalDoProdutos + frete).toFixed(2).replace("." , ",") }}</p>
+          </div>
+        </div>
+        <button>Ir para o pagamento</button>
       </div>
     </section>
   </main>
@@ -159,10 +227,12 @@ function adicionarAoCarrinho(livro) {
   margin: 0;
   padding: 0;
 }
+
 header {
   padding: 2vw 3vw;
   border-bottom: solid #27ae60 2px;
 }
+
 header nav ul {
   display: flex;
 }
@@ -257,6 +327,7 @@ header li#mid {
 .autorDoMes .livro {
   padding: 3vw 5vw 0 0;
 }
+
 .autorDoMes .livro p {
   margin-top: -4vw;
   text-align: end;
@@ -266,12 +337,14 @@ header li#mid {
   display: flex;
   justify-content: center;
 }
+
 .pages p {
   padding: 2vw 7vw;
   margin: 3vw 0;
   font-size: 1.4rem;
   color: #382c2c;
 }
+
 .pages p#divisa {
   border-left: #525252 solid 1px;
   border-right: #525252 solid 1px;
@@ -317,6 +390,7 @@ header li#mid {
   margin: 0 0 10px 0;
   font-family: Arial, Helvetica, sans-serif;
 }
+
 .lancamentos #books .book #preco span {
   color: #27ae60;
   margin-left: 10vw;
@@ -338,7 +412,7 @@ header li#mid {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.carrinho ul {
+.carrinho #carrinho ul {
   display: flex;
   list-style: none;
   font-family: Arial, Helvetica, sans-serif;
@@ -346,43 +420,126 @@ header li#mid {
   border-bottom: #27ae60 2px solid;
 }
 
-.carrinho ul li{
+.carrinho ul li {
   font-size: 1.3rem;
   padding: 5vw 10vw 1vw 10vw;
 }
 
 .carrinho .livro {
-  display: flex;
-  margin: 1vw 9vw;
+  display: grid;
+  grid-template-columns: 150px 190px 1165px 150px;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
 }
+
 .carrinho .livro img {
   width: auto;
   height: 220px;
   margin: 0 30px 0 0;
 }
 
-.carrinho .livro h4{
+.carrinho .livro h4 {
   font-size: 1.3rem;
-  margin: 0 0 20px 0;
+  margin: -3vw 0 0 0;
 }
 
-.carrinho .livro
-/*<main v-else>
-    <h1>Carrinho</h1>
-    <section>
-      <ul>
-        <li>Título</li>
-        <li>Quantidade</li>
-        <li>Subtotal</li>
-      </ul>
-      <div v-for="livro of carrinho" :key="livro.id" class="livro">
-        <img :src="livro.capa" alt="capa do livro" style="height: 200px" />
-        <div>
-          <h4>{{ livro.titulo }}</h4>
-          <p>{{ livro.autor }}</p>
-          <p>R$ {{ livro.preco }}</p>
-        </div>
-      </div>
-    </section>
-  </main>*/
+.carrinho .livro p:first-of-type {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #4F4C57;
+  font-size: 1.1rem;
+  margin: 15px 0;
+}
+
+.carrinho .livro p:last-of-type {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.3rem;
+}
+
+.carrinho .livro #quantidade {
+  font-size: 1.6rem;
+  margin: 0 31vw 0 23vw;
+  font-family: 'Courier New', Courier, monospace;
+  border: #4F4C57 1px solid;
+  padding: .5vw 1.55vw;
+}
+
+.carrinho .livro #quantidade span {
+  padding: 0 5px;
+  cursor: pointer;
+}
+
+.carrinho .livro #subtotal {
+  font-size: 1.6rem;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.carrinho #carrinhoVazio {
+  font-size: 1.4rem;
+}
+
+.voltarLoja{
+  background-color: #27ae60;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  font-size: 1.1rem;
+  margin: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.finalizarCompra #cupom{
+  margin: 0 4vw;
+}
+
+.finalizarCompra #cupom input{
+  font-size: 1.1rem;
+  margin-right: 10px;
+  padding: 7px;
+}
+
+.finalizarCompra #cupom button{
+  font-size: 1rem;
+  background-color: #27ae60;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.finalizarCompra{
+  font-size: 1.1rem;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 10px 35vw;
+}
+
+.finalizarCompra #totalCompras{
+  border: #4d4c4c 1.5px solid;
+  border-radius: 5px;
+  margin: 15px 0;
+  padding: 10px 20px;
+}
+
+.finalizarCompra #totalCompras #list{
+  display: flex;
+  justify-content: space-between;
+}
+
+.finalizarCompra #totalCompras #list p{
+  margin: 13px 0;
+}
+
+.finalizarCompra #totalCompras button{
+  border: none;
+  background-color: #27ae60;
+  color: white;
+  padding: 20px 30px;
+  font-size: 1.3rem;
+  border-radius: 10px;
+  margin-left: 7vw ;
+  cursor: pointer;
+}
+
 </style>
