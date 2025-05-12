@@ -68,7 +68,7 @@ const books = [
 ]
 
 
-const carrinho = ref([{}])
+const carrinho = ref([])
 
 const homePage = ref(true)
 
