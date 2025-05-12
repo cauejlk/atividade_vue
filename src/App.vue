@@ -68,14 +68,7 @@ const books = [
 ]
 
 
-const carrinho = ref([{
-  capa: 'https://m.media-amazon.com/images/I/81ccIcOmAoL._SL1500_.jpg',
-  titulo: 'O mito de Sísifo',
-  autor: 'Albert Camus',
-  preco: '41.87',
-  id: 7,
-  quantidade: 0
-},])
+const carrinho = ref([{}])
 
 const homePage = ref(true)
 
